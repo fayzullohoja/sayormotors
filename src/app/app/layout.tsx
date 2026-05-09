@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
+import { CartBadge } from "@/components/cart-badge";
 
 export default async function ClientAppLayout({
   children,
@@ -45,7 +46,10 @@ export default async function ClientAppLayout({
               <NavLink href="/app">Главная</NavLink>
               <NavLink href="/app/search">Поиск</NavLink>
               <NavLink href="/app/bulk">Массовая проверка</NavLink>
-              <NavLink href="/app/cart">Корзина</NavLink>
+              <NavLink href="/app/cart">
+                Корзина
+                <CartBadge />
+              </NavLink>
               <NavLink href="/app/requests">Мои заявки</NavLink>
               <NavLink href="/app/profile">Профиль</NavLink>
             </nav>
@@ -98,7 +102,7 @@ function NavLink({
   return (
     <Link
       href={href}
-      className="text-muted-foreground transition-colors hover:text-foreground"
+      className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
     >
       {children}
     </Link>

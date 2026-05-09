@@ -42,16 +42,11 @@ export default async function AdminLayout({
         <nav className="space-y-1 p-3 text-sm">
           <SideLink href="/admin">Дашборд</SideLink>
           <SideLink href="/admin/requests">Заявки</SideLink>
+          <SideLink href="/admin/vin">VIN-запросы</SideLink>
           <SideLink href="/admin/applications">B2B-заявки</SideLink>
           <SideLink href="/admin/clients">Клиенты</SideLink>
           <SideLink href="/admin/products">Товары</SideLink>
           <SideLink href="/admin/imports">Загрузка Excel</SideLink>
-          {profile.role === "admin" ? (
-            <>
-              <SideLink href="/admin/managers">Менеджеры</SideLink>
-              <SideLink href="/admin/settings">Настройки</SideLink>
-            </>
-          ) : null}
         </nav>
       </aside>
       <div className="flex flex-1 flex-col">
