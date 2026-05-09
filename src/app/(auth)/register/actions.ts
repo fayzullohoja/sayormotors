@@ -29,21 +29,23 @@ export async function registerAction(
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.rpc("submit_b2b_application", {
-    payload: {
-      company_name: values.company_name,
-      email: values.email,
-      inn: values.inn,
-      country: values.country,
-      city: values.city,
-      contact_person: values.contact_person,
-      phone: values.phone,
-      telegram: values.telegram,
-      whatsapp: values.whatsapp,
-      client_type: values.client_type,
-      comment: values.comment,
-    },
-  });
+  const payload = {
+    company_name: values.company_name,
+    email: values.email,
+    inn: values.inn,
+    country: values.country,
+    city: values.city,
+    contact_person: values.contact_person,
+    phone: values.phone,
+    telegram: values.telegram,
+    whatsapp: values.whatsapp,
+    client_type: values.client_type,
+    comment: values.comment,
+  };
+  const { error } = await supabase.rpc(
+    "submit_b2b_application",
+    { payload } as never,
+  );
 
   if (error) {
     if (error.message.includes("application_already_pending")) {

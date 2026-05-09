@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import type { Database } from "@/lib/supabase/database.types";
 
 const PROTECTED_CLIENT = ["/app"];
 const PROTECTED_STAFF = ["/admin"];
@@ -12,7 +13,7 @@ function startsWithAny(pathname: string, prefixes: string[]) {
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
+  const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
