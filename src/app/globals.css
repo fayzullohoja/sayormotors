@@ -128,3 +128,49 @@
     @apply font-sans;
   }
 }
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+  /* Hide chrome */
+  header,
+  footer,
+  aside,
+  nav,
+  button,
+  form input[type="submit"],
+  [data-print-hide] {
+    display: none !important;
+  }
+  /* Make container full width and ink-friendly */
+  main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  .border,
+  .rounded-xl,
+  .rounded-md,
+  .rounded-2xl {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  a[href]::after {
+    content: "" !important;
+  }
+  /* Avoid breaking inside cards/rows */
+  tr,
+  li,
+  .card {
+    page-break-inside: avoid;
+  }
+  /* Color reset for badges + chips */
+  .bg-emerald-100,
+  .bg-amber-100,
+  .bg-rose-100 {
+    background: transparent !important;
+    border: 1px solid #999 !important;
+  }
+}

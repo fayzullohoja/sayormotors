@@ -47,6 +47,21 @@ export function RegisterForm() {
 
   return (
     <form action={formAction} className="space-y-5">
+      {/* Honeypot — should remain empty. Visually hidden but not display:none so bots see it. */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden
+        style={{
+          position: "absolute",
+          left: "-10000px",
+          width: "1px",
+          height: "1px",
+          opacity: 0,
+        }}
+      />
       <Field
         id="company_name"
         label="Название компании"

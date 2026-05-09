@@ -19,6 +19,12 @@ export async function registerAction(
     values[k] = String(v ?? "").trim();
   }
 
+  // Honeypot: real users won't fill the hidden "website" field; bots usually do.
+  if (values.website) {
+    // Pretend success to avoid signaling the trap.
+    return { ok: true };
+  }
+
   for (const field of REQUIRED_FIELDS) {
     if (!values[field]) {
       return {
