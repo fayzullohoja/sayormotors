@@ -57,12 +57,13 @@ export default async function ProductsPage({
 
   if (q) {
     const normalized = normalizeArticle(q);
+    const safe = q.replace(/,/g, " ");
     if (normalized) {
       query = query.or(
-        `article_normalized.ilike.%${normalized}%,name.ilike.%${q}%`,
+        `article_normalized.ilike.%${normalized}%,name.ilike.%${safe}%,brand.ilike.%${safe}%`,
       );
     } else {
-      query = query.ilike("name", `%${q}%`);
+      query = query.or(`name.ilike.%${safe}%,brand.ilike.%${safe}%`);
     }
   }
   if (onlyActive) query = query.eq("is_active", true);

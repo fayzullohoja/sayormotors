@@ -8,6 +8,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { normalizeArticle } from "@/lib/article";
 import { applyDiscount, formatPrice } from "@/lib/pricing";
+import {
+  convertCurrency,
+  formatConverted,
+  getCurrencyRates,
+} from "@/lib/currency";
+import type { Currency } from "@/lib/supabase/types";
 import { AddToCart } from "./add-to-cart";
 
 export const metadata: Metadata = {
@@ -44,21 +50,24 @@ export default async function SearchPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Resolve discount via company
+  // Resolve discount + preferred currency via company
   const { data: profile } = await supabase
     .from("profiles")
     .select("status, company_id")
     .eq("id", user.id)
     .maybeSingle();
   let discount = 0;
+  let preferredCurrency: Currency = "EUR";
   if (profile?.company_id) {
     const { data: company } = await supabase
       .from("companies")
-      .select("discount_percent")
+      .select("discount_percent, default_currency")
       .eq("id", profile.company_id)
       .maybeSingle();
     discount = company?.discount_percent ?? 0;
+    preferredCurrency = (company?.default_currency as Currency) ?? "EUR";
   }
+  const rates = await getCurrencyRates();
 
   let result: ProductRow | null = null;
   let alternates: ProductRow[] = [];
@@ -77,18 +86,12 @@ export default async function SearchPage({
         .maybeSingle<ProductRow>();
       result = data ?? null;
 
-      // If not found by exact article, try fuzzy by name
-      if (!result) {
+      // If no exact article match, find ranked alternates via RPC (article + name + brand fuzzy)
+      if (!result && q.length >= 2) {
         const { data: similar } = await supabase
-          .from("products")
-          .select(
-            "id, article, name, brand, category, applicability, base_price, base_currency, stock, lead_time, source, source_country, min_order, last_imported_at, description",
-          )
-          .or(`article_normalized.ilike.%${normalized}%,name.ilike.%${q}%`)
-          .eq("is_active", true)
-          .limit(10)
+          .rpc("search_products", { q, result_limit: 10 } as never)
           .returns<ProductRow[]>();
-        alternates = similar ?? [];
+        alternates = (similar as unknown as ProductRow[]) ?? [];
       }
     }
   }
@@ -159,6 +162,19 @@ export default async function SearchPage({
                     · скидка {discount}%
                   </div>
                 ) : null}
+                {preferredCurrency !== result.base_currency ? (() => {
+                  const converted = convertCurrency(
+                    applyDiscount(result.base_price, discount),
+                    result.base_currency as Currency,
+                    preferredCurrency,
+                    rates,
+                  );
+                  return converted !== null ? (
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      ≈ {formatConverted(converted, preferredCurrency)}
+                    </div>
+                  ) : null;
+                })() : null}
               </div>
             </div>
           </CardHeader>

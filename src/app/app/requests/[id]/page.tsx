@@ -240,7 +240,10 @@ export default async function RequestDetailPage({
         </Card>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button asChild variant="outline">
+          <a href={`/api/requests/${request.id}/export`}>Скачать .xlsx</a>
+        </Button>
         <Button asChild variant="outline">
           <Link href="/app/requests">Назад к списку</Link>
         </Button>

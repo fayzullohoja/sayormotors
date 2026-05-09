@@ -114,6 +114,24 @@ export type Database = {
         }
         Relationships: []
       }
+      currency_rates: {
+        Row: {
+          code: Database["public"]["Enums"]["currency_code"]
+          rate_to_eur: number
+          updated_at: string
+        }
+        Insert: {
+          code: Database["public"]["Enums"]["currency_code"]
+          rate_to_eur: number
+          updated_at?: string
+        }
+        Update: {
+          code?: Database["public"]["Enums"]["currency_code"]
+          rate_to_eur?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       excel_imports: {
         Row: {
           created_at: string
@@ -659,6 +677,41 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       normalize_article: { Args: { input: string }; Returns: string }
+      search_products: {
+        Args: { q: string; result_limit?: number }
+        Returns: {
+          applicability: string | null
+          article: string
+          article_normalized: string | null
+          base_currency: Database["public"]["Enums"]["currency_code"]
+          base_price: number
+          brand: string | null
+          category: string | null
+          cost_currency: Database["public"]["Enums"]["currency_code"] | null
+          cost_price: number | null
+          created_at: string
+          description: string | null
+          id: string
+          internal_comment: string | null
+          is_active: boolean
+          last_imported_at: string | null
+          lead_time: string | null
+          min_order: number
+          name: string
+          photo_url: string | null
+          source: Database["public"]["Enums"]["product_source"]
+          source_country: string | null
+          stock: number
+          supplier_profile_id: string | null
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "products"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       set_user_role: {
         Args: {
           p_email: string
@@ -666,6 +719,8 @@ export type Database = {
         }
         Returns: string
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       submit_b2b_application: { Args: { payload: Json }; Returns: string }
     }
     Enums: {

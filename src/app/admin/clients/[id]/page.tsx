@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { EditClientDialog } from "./edit-dialog";
 
 export const metadata: Metadata = {
   title: "Клиент",
@@ -69,6 +70,19 @@ export default async function ClientDetailPage({
     .eq("company_id", id)
     .returns<Profile[]>();
 
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser();
+  let isAdmin = false;
+  if (currentUser) {
+    const { data: ownProfile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", currentUser.id)
+      .maybeSingle();
+    isAdmin = ownProfile?.role === "admin";
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between">
@@ -92,9 +106,32 @@ export default async function ClientDetailPage({
             <Badge variant="outline">{company.default_currency ?? "EUR"}</Badge>
           </div>
         </div>
-        <Button variant="outline" asChild>
-          <Link href="/admin/clients">Назад</Link>
-        </Button>
+        <div className="flex gap-2">
+          <EditClientDialog
+            company={{
+              id: company.id,
+              name: company.name,
+              inn: company.inn,
+              contact_person: company.contact_person,
+              phone: company.phone,
+              telegram: company.telegram,
+              whatsapp: company.whatsapp,
+              email: company.email,
+              city: company.city,
+              country: company.country,
+              legal_address: company.legal_address,
+              pricing_group: company.pricing_group,
+              discount_percent: company.discount_percent,
+              default_currency: company.default_currency,
+              is_active: company.is_active,
+              internal_comment: company.internal_comment,
+            }}
+            isAdmin={isAdmin}
+          />
+          <Button variant="outline" asChild>
+            <Link href="/admin/clients">Назад</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

@@ -125,9 +125,14 @@ export default async function AdminRequestDetailPage({
                 : ""}
             </p>
           </div>
-          <Badge variant={REQUEST_STATUS_VARIANT[request.status]}>
-            {REQUEST_STATUS_LABEL[request.status]}
-          </Badge>
+          <div className="flex items-center gap-3">
+            <Badge variant={REQUEST_STATUS_VARIANT[request.status]}>
+              {REQUEST_STATUS_LABEL[request.status]}
+            </Badge>
+            <Button asChild size="sm" variant="outline">
+              <a href={`/api/requests/${request.id}/export`}>Скачать .xlsx</a>
+            </Button>
+          </div>
         </div>
       </div>
 
