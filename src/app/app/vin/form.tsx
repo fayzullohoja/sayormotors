@@ -30,7 +30,7 @@ export function VinForm({ canSubmit }: { canSubmit: boolean }) {
   }
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-4" encType="multipart/form-data">
       <div className="space-y-2">
         <Label htmlFor="vin">VIN автомобиля</Label>
         <Input
@@ -85,6 +85,19 @@ export function VinForm({ canSubmit }: { canSubmit: boolean }) {
           defaultValue={v.client_comment}
           placeholder="Сроки, бюджет, особые условия"
         />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="photos">Фото детали (опционально, до 5 штук, до 10 МБ каждое)</Label>
+        <Input
+          id="photos"
+          name="photos"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+          multiple
+        />
+        <p className="text-xs text-muted-foreground">
+          Фото старой детали, маркировки или повреждённого узла ускоряют подбор.
+        </p>
       </div>
       {state.error ? (
         <Alert variant="destructive">

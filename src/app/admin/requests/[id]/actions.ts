@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { sendEmail, renderRequestStatusEmail } from "@/lib/email";
+import { REQUEST_STATUS_LABEL } from "@/lib/request-status";
 import type {
   RequestStatus,
   RequestItemStatus,
@@ -211,6 +213,35 @@ export async function saveRequestUpdates(
         items: itemHistory,
       } as never,
     });
+  }
+
+  // 4) Notify client by email if status changed (best-effort; no-op when RESEND_API_KEY missing)
+  const requestChangesTyped = requestChanges as { status?: { from: RequestStatus; to: RequestStatus } };
+  if (input.status && requestChangesTyped.status) {
+    try {
+      const { data: req } = await admin
+        .from("requests")
+        .select("number, manager_comment, created_by")
+        .eq("id", input.requestId)
+        .maybeSingle();
+      if (req?.created_by) {
+        const adminListed = await admin.auth.admin.getUserById(req.created_by);
+        const email = adminListed.data.user?.email;
+        if (email) {
+          const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/app/requests/${input.requestId}`;
+          const tpl = renderRequestStatusEmail({
+            number: req.number ?? 0,
+            newStatus: input.status,
+            statusLabel: REQUEST_STATUS_LABEL[input.status],
+            managerComment: req.manager_comment ?? null,
+            url,
+          });
+          await sendEmail({ to: email, ...tpl });
+        }
+      }
+    } catch (e) {
+      console.error("[notify] request status email failed:", e);
+    }
   }
 
   revalidatePath(`/admin/requests/${input.requestId}`);

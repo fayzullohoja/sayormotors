@@ -47,6 +47,9 @@ export default async function AdminLayout({
           <SideLink href="/admin/clients">Клиенты</SideLink>
           <SideLink href="/admin/products">Товары</SideLink>
           <SideLink href="/admin/imports">Загрузка Excel</SideLink>
+          {profile.role === "admin" ? (
+            <SideLink href="/admin/managers">Менеджеры</SideLink>
+          ) : null}
         </nav>
       </aside>
       <div className="flex flex-1 flex-col">

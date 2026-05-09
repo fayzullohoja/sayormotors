@@ -124,7 +124,14 @@ export default async function AdminVinPage({
             <TableBody>
               {data.map((r) => (
                 <TableRow key={r.id}>
-                  <TableCell className="font-mono">№{r.number}</TableCell>
+                  <TableCell>
+                    <Link
+                      href={`/admin/vin/${r.id}`}
+                      className="font-mono hover:underline"
+                    >
+                      №{r.number}
+                    </Link>
+                  </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     {new Date(r.created_at).toLocaleDateString("ru")}
                   </TableCell>
