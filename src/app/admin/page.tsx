@@ -96,6 +96,11 @@ export default async function AdminDashboardPage() {
       .limit(5),
   ]);
 
+  const isEmpty =
+    (productsTotal ?? 0) === 0 &&
+    (activeClients ?? 0) === 0 &&
+    (pendingApps ?? 0) === 0;
+
   return (
     <div className="space-y-6">
       <div>
@@ -104,6 +109,57 @@ export default async function AdminDashboardPage() {
           Сводка по заявкам, клиентам и каталогу.
         </p>
       </div>
+
+      {isEmpty ? (
+        <Card className="border-primary/40 bg-accent/30">
+          <CardHeader>
+            <CardTitle>Запустить B2B-каталог за 3 шага</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ol className="space-y-3 text-sm">
+              <li className="flex items-start gap-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                  1
+                </span>
+                <div>
+                  <Link href="/admin/imports" className="font-medium text-primary hover:underline">
+                    Загрузить каталог
+                  </Link>{" "}
+                  — Excel-файл со столбцами Артикул, Название, Цена, Валюта, Наличие.
+                  Внизу страницы — ссылка на пример.
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                  2
+                </span>
+                <div>
+                  <Link href="/admin/settings/currency" className="font-medium text-primary hover:underline">
+                    Проверить курсы валют
+                  </Link>{" "}
+                  — для корректного отображения цен в локальной валюте клиентов.
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+                  3
+                </span>
+                <div>
+                  Поделитесь ссылкой <code className="rounded bg-card px-1 font-mono text-xs">https://sayormotors.vercel.app/register</code>{" "}
+                  с потенциальными B2B-клиентами. Их заявки появятся в{" "}
+                  <Link
+                    href="/admin/applications"
+                    className="font-medium text-primary hover:underline"
+                  >
+                    B2B-заявки
+                  </Link>
+                  .
+                </div>
+              </li>
+            </ol>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard

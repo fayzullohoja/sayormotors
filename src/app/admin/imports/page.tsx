@@ -58,11 +58,20 @@ export default async function ImportsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Загрузка Excel</h1>
-        <p className="mt-2 text-muted-foreground">
-          Загрузите файл, проверьте маппинг колонок и подтвердите обновление каталога.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight">Загрузка Excel</h1>
+          <p className="mt-2 text-muted-foreground">
+            Загрузите файл, проверьте маппинг колонок и подтвердите обновление
+            каталога.
+          </p>
+        </div>
+        <a
+          href="/api/imports/sample"
+          className="text-sm text-primary hover:underline"
+        >
+          Скачать пример .xlsx
+        </a>
       </div>
 
       <Card>
