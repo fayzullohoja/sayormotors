@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProfileForm } from "./form";
+import { TelegramLink } from "./telegram-link";
 
 export const metadata: Metadata = {
   title: "Профиль",
@@ -15,6 +16,7 @@ type ProfileRow = {
   whatsapp: string | null;
   status: "pending" | "active" | "blocked";
   company_id: string | null;
+  telegram_chat_id: number | null;
 };
 
 type CompanyRow = {
@@ -36,7 +38,7 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, phone, telegram, whatsapp, status, company_id")
+    .select("full_name, phone, telegram, whatsapp, status, company_id, telegram_chat_id")
     .eq("id", user.id)
     .maybeSingle<ProfileRow>();
 
@@ -62,22 +64,37 @@ export default async function ProfilePage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Контактные данные</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ProfileForm
-              email={user.email ?? ""}
-              defaults={{
-                full_name: profile?.full_name ?? "",
-                phone: profile?.phone ?? "",
-                telegram: profile?.telegram ?? "",
-                whatsapp: profile?.whatsapp ?? "",
-              }}
-            />
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Контактные данные</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProfileForm
+                email={user.email ?? ""}
+                defaults={{
+                  full_name: profile?.full_name ?? "",
+                  phone: profile?.phone ?? "",
+                  telegram: profile?.telegram ?? "",
+                  whatsapp: profile?.whatsapp ?? "",
+                }}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Уведомления в Telegram</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TelegramLink
+                linked={!!profile?.telegram_chat_id}
+                username={profile?.telegram ?? null}
+                botUsername={process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME ?? null}
+              />
+            </CardContent>
+          </Card>
+        </div>
 
         <Card>
           <CardHeader>
@@ -123,6 +140,16 @@ export default async function ProfilePage() {
       </div>
     </div>
   );
+}
+
+declare global {
+  // Allow reading NEXT_PUBLIC_TELEGRAM_BOT_USERNAME in server components without TS complaints
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace NodeJS {
+    interface ProcessEnv {
+      NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?: string;
+    }
+  }
 }
 
 function Field({ label, value }: { label: string; value: string | null }) {

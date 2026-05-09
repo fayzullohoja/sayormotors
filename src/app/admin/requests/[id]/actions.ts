@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { sendEmail, renderRequestStatusEmail } from "@/lib/email";
+import { tgSendMessage, tgEscape, siteUrl } from "@/lib/telegram";
 import { REQUEST_STATUS_LABEL } from "@/lib/request-status";
 import type {
   RequestStatus,
@@ -215,7 +215,7 @@ export async function saveRequestUpdates(
     });
   }
 
-  // 4) Notify client by email if status changed (best-effort; no-op when RESEND_API_KEY missing)
+  // 4) Notify client via Telegram if linked
   const requestChangesTyped = requestChanges as { status?: { from: RequestStatus; to: RequestStatus } };
   if (input.status && requestChangesTyped.status) {
     try {
@@ -225,22 +225,26 @@ export async function saveRequestUpdates(
         .eq("id", input.requestId)
         .maybeSingle();
       if (req?.created_by) {
-        const adminListed = await admin.auth.admin.getUserById(req.created_by);
-        const email = adminListed.data.user?.email;
-        if (email) {
-          const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/app/requests/${input.requestId}`;
-          const tpl = renderRequestStatusEmail({
-            number: req.number ?? 0,
-            newStatus: input.status,
-            statusLabel: REQUEST_STATUS_LABEL[input.status],
-            managerComment: req.manager_comment ?? null,
-            url,
-          });
-          await sendEmail({ to: email, ...tpl });
+        const { data: clientProfile } = await admin
+          .from("profiles")
+          .select("telegram_chat_id")
+          .eq("id", req.created_by)
+          .maybeSingle();
+        const chatId = (clientProfile as { telegram_chat_id: number | null } | null)
+          ?.telegram_chat_id;
+        if (chatId) {
+          const text = [
+            `📦 <b>Заявка №${req.number ?? 0} · ${REQUEST_STATUS_LABEL[input.status]}</b>`,
+            req.manager_comment ? `\n${tgEscape(req.manager_comment)}` : "",
+            `\n<a href="${siteUrl()}/app/requests/${input.requestId}">Открыть заявку</a>`,
+          ]
+            .filter(Boolean)
+            .join("\n");
+          await tgSendMessage(chatId, text);
         }
       }
     } catch (e) {
-      console.error("[notify] request status email failed:", e);
+      console.error("[notify] request status tg failed:", e);
     }
   }
 

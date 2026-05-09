@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { tgNotifyManagers, tgEscape, siteUrl } from "@/lib/telegram";
+import { formatPrice } from "@/lib/pricing";
 import type { Currency } from "@/lib/supabase/types";
 
 export type SubmitRequestInput = {
@@ -118,6 +120,26 @@ export async function submitRequestAction(
       currency: displayCurrency,
     },
   });
+
+  // Notify managers about new request
+  const { data: company } = await admin
+    .from("companies")
+    .select("name")
+    .eq("id", profile.company_id)
+    .maybeSingle();
+  const companyName = (company as { name: string } | null)?.name ?? "—";
+  await tgNotifyManagers(
+    [
+      `📦 <b>Новая заявка №${requestRow.number}</b>`,
+      `Компания: <b>${tgEscape(companyName)}</b>`,
+      `Позиций: ${items.length} · Сумма: ${formatPrice(totalAmount, displayCurrency)}`,
+      input.contact_method ? `Связь: ${tgEscape(input.contact_method)}` : "",
+      input.client_comment ? `\n${tgEscape(input.client_comment)}` : "",
+      `\n<a href="${siteUrl()}/admin/requests/${requestRow.id}">Открыть в админке</a>`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  );
 
   revalidatePath("/app");
   revalidatePath("/app/requests");

@@ -298,6 +298,7 @@ export type Database = {
           role: Database["public"]["Enums"]["user_role"]
           status: Database["public"]["Enums"]["user_status"]
           telegram: string | null
+          telegram_chat_id: number | null
           updated_at: string
           whatsapp: string | null
         }
@@ -311,6 +312,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           status?: Database["public"]["Enums"]["user_status"]
           telegram?: string | null
+          telegram_chat_id?: number | null
           updated_at?: string
           whatsapp?: string | null
         }
@@ -324,6 +326,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           status?: Database["public"]["Enums"]["user_status"]
           telegram?: string | null
+          telegram_chat_id?: number | null
           updated_at?: string
           whatsapp?: string | null
         }
@@ -581,6 +584,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      telegram_link_codes: {
+        Row: {
+          code: string
+          consumed_at: string | null
+          consumed_by: string | null
+          created_at: string
+          telegram_chat_id: number
+          telegram_first_name: string | null
+          telegram_username: string | null
+        }
+        Insert: {
+          code: string
+          consumed_at?: string | null
+          consumed_by?: string | null
+          created_at?: string
+          telegram_chat_id: number
+          telegram_first_name?: string | null
+          telegram_username?: string | null
+        }
+        Update: {
+          code?: string
+          consumed_at?: string | null
+          consumed_by?: string | null
+          created_at?: string
+          telegram_chat_id?: number
+          telegram_first_name?: string | null
+          telegram_username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telegram_link_codes_consumed_by_fkey"
+            columns: ["consumed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vin_requests: {
         Row: {

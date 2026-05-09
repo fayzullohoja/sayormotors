@@ -1,6 +1,7 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { tgNotifyManagers, tgEscape, siteUrl } from "@/lib/telegram";
 
 export type RegisterState = {
   ok?: boolean;
@@ -65,6 +66,22 @@ export async function registerAction(
     }
     return { error: error.message, values };
   }
+
+  // Notify managers about new B2B application
+  await tgNotifyManagers(
+    [
+      `🆕 <b>Новая B2B-заявка</b>`,
+      `Компания: <b>${tgEscape(values.company_name)}</b>`,
+      `Контакт: ${tgEscape(values.contact_person)} · ${tgEscape(values.phone)}`,
+      `Email: ${tgEscape(values.email)}`,
+      values.client_type ? `Тип: ${tgEscape(values.client_type)}` : "",
+      values.city ? `Город: ${tgEscape(values.city)}` : "",
+      values.comment ? `\n${tgEscape(values.comment)}` : "",
+      `\n<a href="${siteUrl()}/admin/applications">Открыть в админке</a>`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  );
 
   return { ok: true };
 }

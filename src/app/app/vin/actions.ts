@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { sendEmail, renderVinStatusEmail } from "@/lib/email";
+import { tgSendMessage, tgNotifyManagers, tgEscape, siteUrl } from "@/lib/telegram";
 import type { VinRequestStatus } from "@/lib/supabase/types";
 
 const VIN_STATUS_LABEL: Record<VinRequestStatus, string> = {
@@ -126,6 +126,30 @@ export async function submitVinRequestAction(
       .eq("id", inserted.id);
   }
 
+  // Notify managers about new VIN request
+  const { data: company } = await admin
+    .from("companies")
+    .select("name")
+    .eq("id", profile.company_id)
+    .maybeSingle();
+  const companyName = (company as { name: string } | null)?.name ?? "—";
+  await tgNotifyManagers(
+    [
+      `🔧 <b>Новый VIN-запрос</b>`,
+      `Компания: <b>${tgEscape(companyName)}</b>`,
+      `VIN: <code>${tgEscape(values.vin.toUpperCase())}</code>`,
+      [values.make, values.model, values.year]
+        .filter(Boolean)
+        .map((s) => tgEscape(String(s)))
+        .join(" "),
+      `\n${tgEscape(values.what_needed)}`,
+      photoPaths.length > 0 ? `\n📷 Фото: ${photoPaths.length}` : "",
+      `\n<a href="${siteUrl()}/admin/vin/${inserted.id}">Открыть в админке</a>`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  );
+
   revalidatePath("/app/vin");
   revalidatePath("/admin/vin");
   return { ok: true };
@@ -188,24 +212,26 @@ export async function updateVinRequestAdminAction(
     .eq("id", id);
   if (error) return { error: error.message };
 
-  // Notify client by email if status changed
+  // Notify client via Telegram if linked, plus log to managers chat
   if (prior && prior.status !== status && prior.created_by) {
     try {
-      const adminListed = await admin.auth.admin.getUserById(prior.created_by);
-      const email = adminListed.data.user?.email;
-      if (email) {
-        const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/app/vin`;
-        const tpl = renderVinStatusEmail({
-          number: prior.number ?? 0,
-          newStatus: status,
-          statusLabel: VIN_STATUS_LABEL[status],
-          managerComment: managerComment || null,
-          url,
-        });
-        await sendEmail({ to: email, ...tpl });
-      }
+      const { data: clientProfile } = await admin
+        .from("profiles")
+        .select("telegram_chat_id")
+        .eq("id", prior.created_by)
+        .maybeSingle();
+      const chatId = (clientProfile as { telegram_chat_id: number | null } | null)
+        ?.telegram_chat_id;
+      const text = [
+        `🔧 <b>VIN-запрос №${prior.number} · ${VIN_STATUS_LABEL[status]}</b>`,
+        managerComment ? `\n${tgEscape(managerComment)}` : "",
+        `\n<a href="${siteUrl()}/app/vin">Открыть запрос</a>`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+      if (chatId) await tgSendMessage(chatId, text);
     } catch (e) {
-      console.error("[notify] vin status email failed:", e);
+      console.error("[notify] vin status tg failed:", e);
     }
   }
 
