@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { CartBadge } from "@/components/cart-badge";
+import { ClientMobileNav } from "@/components/client-mobile-nav";
 
 export default async function ClientAppLayout({
   children,
@@ -31,7 +32,14 @@ export default async function ClientAppLayout({
     <div className="flex min-h-svh flex-col">
       <header className="sticky top-0 z-30 border-b bg-background">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 md:gap-6">
+            <ClientMobileNav
+              staffLink={
+                profile?.role === "manager" || profile?.role === "admin"
+                  ? { href: "/admin", label: "Открыть админку" }
+                  : undefined
+              }
+            />
             <Link href="/app" className="flex items-center gap-2">
               <Image
                 src="/logo.png"

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
+import { AdminMobileNav } from "@/components/admin-mobile-nav";
 
 export default async function AdminLayout({
   children,
@@ -55,8 +56,11 @@ export default async function AdminLayout({
       </aside>
       <div className="flex flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b bg-background px-4 sm:px-6">
-          <div className="text-sm font-medium text-muted-foreground">
-            Админ-панель
+          <div className="flex items-center gap-3">
+            <AdminMobileNav isAdmin={profile.role === "admin"} />
+            <div className="text-sm font-medium text-muted-foreground">
+              Админ-панель
+            </div>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <span className="hidden text-muted-foreground md:inline">
