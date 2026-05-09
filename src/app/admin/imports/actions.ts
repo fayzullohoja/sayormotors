@@ -9,7 +9,7 @@ import type {
   ParseResult,
   ParsedRow,
 } from "@/lib/excel/types";
-import type { Currency, ProductSource } from "@/lib/supabase/database.types";
+import type { Currency, ProductSource } from "@/lib/supabase/types";
 import { normalizeArticle } from "@/lib/article";
 
 async function requireStaff() {

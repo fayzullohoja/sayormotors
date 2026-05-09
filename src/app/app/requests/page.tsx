@@ -18,7 +18,7 @@ import {
   REQUEST_STATUS_VARIANT,
 } from "@/lib/request-status";
 import { formatPrice } from "@/lib/pricing";
-import type { RequestStatus } from "@/lib/supabase/database.types";
+import type { RequestStatus } from "@/lib/supabase/types";
 
 export const metadata: Metadata = {
   title: "Мои заявки",

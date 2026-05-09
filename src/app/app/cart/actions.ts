@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import type { Currency } from "@/lib/supabase/database.types";
+import type { Currency } from "@/lib/supabase/types";
 
 export type SubmitRequestInput = {
   items: Array<{

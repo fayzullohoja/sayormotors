@@ -29,7 +29,7 @@ import type {
   Currency,
   RequestStatus,
   RequestItemStatus,
-} from "@/lib/supabase/database.types";
+} from "@/lib/supabase/types";
 import { saveRequestUpdates } from "./actions";
 
 type Item = {

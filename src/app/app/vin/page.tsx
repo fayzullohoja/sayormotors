@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { VinForm } from "./form";
-import type { VinRequestStatus } from "@/lib/supabase/database.types";
+import type { VinRequestStatus } from "@/lib/supabase/types";
 
 export const metadata: Metadata = {
   title: "VIN-запрос",

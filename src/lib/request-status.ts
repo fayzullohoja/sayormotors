@@ -1,7 +1,7 @@
 import type {
   RequestStatus,
   RequestItemStatus,
-} from "@/lib/supabase/database.types";
+} from "@/lib/supabase/types";
 
 export const REQUEST_STATUS_LABEL: Record<RequestStatus, string> = {
   new: "Новая",

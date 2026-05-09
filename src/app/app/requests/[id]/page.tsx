@@ -24,7 +24,7 @@ import type {
   Currency,
   RequestStatus,
   RequestItemStatus,
-} from "@/lib/supabase/database.types";
+} from "@/lib/supabase/types";
 
 export const metadata: Metadata = {
   title: "Заявка",

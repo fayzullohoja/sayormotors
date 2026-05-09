@@ -14,7 +14,7 @@ import type {
   Currency,
   RequestStatus,
   RequestItemStatus,
-} from "@/lib/supabase/database.types";
+} from "@/lib/supabase/types";
 import { ManageForm } from "./manage-form";
 
 export const metadata: Metadata = {

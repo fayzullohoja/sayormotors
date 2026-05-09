@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import type { Database } from "@/lib/supabase/database.types";
+import type { Database } from "@/lib/supabase/types";
 
 const PROTECTED_CLIENT = ["/app"];
 const PROTECTED_STAFF = ["/admin"];

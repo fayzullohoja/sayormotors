@@ -6,7 +6,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type {
   RequestStatus,
   RequestItemStatus,
-} from "@/lib/supabase/database.types";
+} from "@/lib/supabase/types";
 
 async function requireStaff() {
   const supabase = await createSupabaseServerClient();
