@@ -42,7 +42,8 @@ export default async function ClientAppLayout({
               />
             </Link>
             <nav className="hidden items-center gap-5 text-sm md:flex">
-              <NavLink href="/app">Поиск</NavLink>
+              <NavLink href="/app">Главная</NavLink>
+              <NavLink href="/app/search">Поиск</NavLink>
               <NavLink href="/app/bulk">Массовая проверка</NavLink>
               <NavLink href="/app/cart">Корзина</NavLink>
               <NavLink href="/app/requests">Мои заявки</NavLink>
